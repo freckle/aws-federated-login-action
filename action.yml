@@ -1,0 +1,39 @@
+name: AWS Federated Login
+description: |
+  Log in an Action to AWS using Federated OIDC.
+
+  See https://awsteele.com/blog/2021/09/15/aws-federation-comes-to-github-actions.html
+inputs:
+  aws-region:
+    description: Region
+    required: true
+  aws-role-arn:
+    description: Role ARN
+    required: true
+  sleep:
+    description: Sleep this many seconds before requesting credentials
+    require: true
+    default: 5
+outputs: {}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+          creds=$(mktemp)
+
+          sleep ${{ inputs.sleep }} # race condition
+
+          curl \
+            --silent \
+            --fail \
+            --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq '.value' --raw-output > "$creds"
+
+          cat >>"$GITHUB_ENV" <<EOM
+          AWS_REGION=${{ inputs.aws-region }}
+          AWS_DEFAULT_REGION=${{ inputs.aws-region }}
+          AWS_ROLE_ARN=${{ inputs.aws-role-arn }}
+          AWS_WEB_IDENTITY_TOKEN_FILE=$creds
+          EOM
