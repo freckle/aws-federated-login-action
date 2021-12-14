@@ -2,7 +2,7 @@
 
 Implements the credentials request described [here][blog].
 
-[bloc]: https://awsteele.com/blog/2021/09/15/aws-federation-comes-to-github-actions.html
+[blog]: https://awsteele.com/blog/2021/09/15/aws-federation-comes-to-github-actions.html
 
 ## Pre-requisites
 
